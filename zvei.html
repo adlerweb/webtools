@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<meta name="author" content="2014 Florian Knodt - www.adlerweb.info">
+		<meta http-equiv="content-language" content="de">
+		<meta name="generator" content="OnlineZVEIGenerator 0.1">
+		<title>Online ZVEI Generator</title>
+	</head>
+    <body>	
+		<script>
+			
+			var osc1,osc2;
+			var sendstr = [];
+			var cur = -1;
+			
+			var contextSwitcher = (
+			window.mozAudioContext ||
+			window.webkitAudioContext ||
+			window.AudioContext ||
+			window.oAudioContext ||
+			window.msAudioContext
+			);
+		
+			if (contextSwitcher) {
+			var context = new contextSwitcher();
+			}
+			
+			function toneStart(freq1, freq2) {
+				osc1 = context.createOscillator();
+				osc1.type = 'sine';
+				osc1.frequency.value = freq1;
+				gainNode = context.createGain ? context.createGain() : context.createGainNode();
+				osc1.connect(gainNode,0,0);
+				gainNode.connect(context.destination);
+				gainNode.gain.value = .1;
+				osc1.start ? osc1.start(0) : osc1.noteOn(0)
+			
+				if (freq2 > 0) { //Wenn Doppelfrequenzton
+					osc2 = context.createOscillator();
+					osc2.type = 'sine';
+					osc2.frequency.value = freq2;
+					gainNode = context.createGain ? context.createGain() : context.createGainNode();
+					osc2.connect(gainNode);
+					gainNode.connect(context.destination);
+					gainNode.gain.value = .1;
+					osc2.start ? osc2.start(0) : osc2.noteOn(0)
+				}
+			}
+			
+			function toneStop() {
+				if(osc1) osc1.disconnect();
+				if(osc2) osc2.disconnect();
+			}
+			
+			function toneSequence() {
+				toneStop();
+				if (sendstr.length <= 0) {
+					return;
+				}
+				ncur = sendstr.shift();
+				
+				if (cur == ncur) {
+					cur = "R";
+				}else{
+					cur = ncur;
+				}
+				
+				wait = 0;
+				if (cur == "p") {
+					//Pause 600ms
+					wait = 600;
+				}else if (cur == "F") {
+					//Sirenenton Feueralarm
+					toneStart(675,1240);
+					wait = 5000;
+				}else if (cur == "P") {
+					//Sirenenton Probe
+					toneStart(675,1860);
+					wait = 5000;
+				}else if (cur == "Z") {
+					//Sirenenton Zivilschutz Alarm
+					toneStart(675,825);
+					wait = 5000;
+				}else if (cur == "W") {
+					//Sirenenton Zivilschutz Warnung
+					toneStart(675,2280);
+					wait = 5000;
+				}else if (cur == "E") {
+					//Sirenenton Zivilschutz Entwarnung
+					toneStart(675,1010);
+					wait = 5000;
+				}else if (cur == "w") {
+					//Weckton
+					sendstr.unshift("WT", "WP", "WT", "WP", "WT", "WP", "WT", "WP", "WT", "WP", "WT", "WP", "WT", "WP", "WT", "WP", "WT", "WP", "WT", "WP", "WT", "WP", "WT", "WP");
+				}else if (cur == 0) {
+					toneStart(2400,0);
+					wait = 70;
+				}else if (cur == 1) {
+					toneStart(1060,0);
+					wait = 70;
+				}else if (cur == 2) {
+					toneStart(1160,0);
+					wait = 70;
+				}else if (cur == 3) {
+					toneStart(1270,0);
+					wait = 70;
+				}else if (cur == 4) {
+					toneStart(1400,0);
+					wait = 70;
+				}else if (cur == 5) {
+					toneStart(1530,0);
+					wait = 70;
+				}else if (cur == 6) {
+					toneStart(1670,0);
+					wait = 70;
+				}else if (cur == 7) {
+					toneStart(1830,0);
+					wait = 70;
+				}else if (cur == 8) {
+					toneStart(2000,0);
+					wait = 70;
+				}else if (cur == 9) {
+					toneStart(2200,0);
+					wait = 70;
+				}else if (cur == "R") {
+					toneStart(2600,0);
+					wait = 70;
+				}else if (cur == "WT") {
+					toneStart(2600,0);
+					wait = 200;
+				}else if (cur == "WP") {
+					wait = 200;
+				}
+				setTimeout(toneSequence, wait);
+			}
+			
+			function toneFromForm() {
+				str = document.getElementById("alarmstr").value;
+				
+				for (var i = 0, len = str.length; i < len; i++) {
+					sendstr.push(str[i]);
+				}
+				
+				toneSequence();
+			}
+			
+			function strAdd(str) {
+				document.getElementById("alarmstr").value += str;
+			}
+		</script>
+		
+		<h1>Javascript/WebAudioAPI ZVEI Generator</h1>
+		<hr>
+		<button id="feuer" class="beginDial" onclick="strAdd('F')">Feuer</button>
+		<button id="probe" class="beginDial" onclick="strAdd('P')">Probe</button>
+		<button id="zsa" class="beginDial"   onclick="strAdd('Z')">Zivilschutzalarm</button>
+		<button id="zsw" class="beginDial"   onclick="strAdd('W')">Zivilschutzwarnung</button>
+		<button id="zse" class="beginDial"   onclick="strAdd('E')">Zivilschutzentwarnung</button>
+		<button id="zse" class="beginDial"   onclick="strAdd('w')">Weckton</button>
+		<button id="zse" class="beginDial"   onclick="strAdd('p')">Pause</button>
+		<hr>
+		<input type="text" id="alarmstr" name="alarmstr" size="100" value="p12345p12345pFp54321p54321pw">
+		<button id="zse" class="beginDial"   onclick="toneFromForm()">Alarm senden</button>
+		<hr>
+		<h2>Bedienhinweise</h2>
+		Für ein korrektes Format folgendes beachten:
+		<ul>
+			<li>Vor dem Alarm müssen ~600ms Stille sein - ggf. Pause einfügen</li>
+			<li>Eine ID besteht aus 5 Stellen</li>
+			<li>Nach einer ID müssen ~600ms Stille sein - Pause einfügen</li>
+			<li>IDs werden üblicherweise zwei mal wiederholt</li>
+			<li>Nach zwei Aussendungen der ID kann optional ein Weckton oder Sirenenton gewählt werden</li>
+			<li>Probe sowie Zivilschutzalarme sind abgekündigt</li>
+		</ul>
+		<hr>
+		<h2>Technische Hinweise</h2>
+		<ul>
+			<li>Eine ID entspricht 70ms</li>
+			<li>Eine Pause entspricht 600ms</li>
+			<li>Folgen 2 gleiche Zeichen aufeinander wird automatisch ein Widerholton generiert</li>
+			<li>Als Weckton wird der Wiederholton (2600Hz) mit 200ms-Muster verwendet</li>
+			<li>Töne werden per WebAudioAPI generiert, die Qualität ist vom Browser abhängig</li>
+		</ul>
+    </body>
+</html>

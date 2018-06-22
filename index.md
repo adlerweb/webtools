@@ -4,7 +4,7 @@ This site provides several (mostly javascript) utilities. Just browse the index 
 
 ### Index
 
- * ZVEI Emergency Service 5-Tone Selcall Generator (de, [Description](https://www.adlerweb.info/blog/2015/09/10/online-zvei5-ton-folgen-tongeber-via-html5js/))
+ * [ZVEI Emergency Service 5-Tone Selcall Generator](/webtools/zvei.html) (de, [Description](https://www.adlerweb.info/blog/2015/09/10/online-zvei5-ton-folgen-tongeber-via-html5js/))
 
 ### Legal Foo
 
